@@ -1,0 +1,17 @@
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\chromedriver.exe
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriverScraping.exe
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriverScraping.pdb
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\EPPlus.dll
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\Selenium.WebDriverBackedSelenium.dll
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\ThoughtWorks.Selenium.Core.dll
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriver.dll
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriver.Support.dll
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\EPPlus.xml
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\Selenium.WebDriverBackedSelenium.xml
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\ThoughtWorks.Selenium.Core.xml
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriver.xml
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\bin\Release\WebDriver.Support.xml
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Release\RoboBarbearia.csproj.CoreCompileInputs.cache
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Release\RoboBarbearia.csproj.CopyComplete
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Release\WebDriverScraping.exe
+C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Release\WebDriverScraping.pdb

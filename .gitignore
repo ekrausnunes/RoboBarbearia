@@ -348,3 +348,16 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+[Oo]bj
+[Bb]in
+*.bak
+*.DS_Store
+[Tt]humbs.db
+_ReSharper.*
+*.resharper
+Ankh.NoLoad
+setup.exe
+UpgradeLog.XML
+*.sqlsuo
+/RoboBarbearia.sln

@@ -1,141 +1,100 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using OfficeOpenXml;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OfficeOpenXml;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
 using RoboBarbearia.Model;
-using System.Collections.Generic;
+using RoboBarbearia.Properties;
+using RoboBarbearia.Utils;
+using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
-namespace WebDriverTest
+namespace RoboBarbearia
 {
-    class Program
+    internal static class Program
     {
-        private static readonly string arquivoLogErro = Path.Combine(RoboBarbearia.Properties.Settings.Default.CaminhoUsuarios, "ArquivoLogErro.txt");
-        private static List<Cliente> clienteLista;
-        private static List<Relatorio> relatorioLista;
+        private static List<Cliente> _clienteLista;
+        private static List<Relatorio> _relatorioLista;
 
-        static void Main(string[] args)
+        private static void Main()
         {
+            var nomeCliente = "";
             try
-            {                
-                ChromeOptions optionsChr = new ChromeOptions();
-                // Roda sem o browser
-                //optionsChr.AddArgument("--headless");
+            {
+                BuscarRelatorios();
+                BuscarClientes();
 
-                // Inicializa o Chrome Driver
-                using (ChromeDriver driver = new ChromeDriver(optionsChr))                
+                // Baixa os relatórios de todos os clientes que estão setados para baixar (gerarRelatorioCliente) e todos desatualizados (dataUltAtualizacao < dataAtual)
+                foreach (var cliente in _clienteLista)
                 {
-                    BuscarRelatorios();
-                    BuscarClientes();
-     
-                    foreach (Cliente xCliente in clienteLista)
-                    {
-                        if (xCliente.gerarRelatorioCliente)
-                        {
-                            if (LogarSistema(driver, xCliente))
-                            {
-                                foreach (Relatorio xRelatorio in relatorioLista)
-                                {
-                                    if (xRelatorio.ativoRelatorio)
-                                    {
-                                        driver.Navigate().GoToUrl(RoboBarbearia.Properties.Settings.Default.Relatorios + xRelatorio.numeroRelatorio);
-                                        driver.Navigate().Refresh();
-                                        
-                                        LimparPastaDownload(RoboBarbearia.Properties.Settings.Default.Download, xRelatorio.nomeArquivoRelatorio);
-                                        System.Threading.Thread.Sleep(5000);
-                                        // Setar a data
-                                        IWebElement inputDateIn = driver.FindElementByName("inicio");
-                                        inputDateIn.Clear();
+                    nomeCliente = cliente.NomeCliente;
+                    if (cliente.GerarRelatorioCliente && cliente.DataUltAtualizacao != "ERRO" &&
+                        cliente.DataUltAtualizacao != DateTime.Now.ToString("ddMMyy")) BaixarRelatorios(cliente);
+                }
 
-                                        DateTime dataInicial = new DateTime(2018, 1, 1); 
-                                        
-                                        //inputDateIn.SendKeys(dataInicial.ToString("   01012018"));
-                                        if (xCliente.dataInicio.Trim().Length == 7) {
-                                            inputDateIn.SendKeys(dataInicial.ToString("   0" + xCliente.dataInicio));
-                                        } else {
-                                            inputDateIn.SendKeys(dataInicial.ToString("   " + xCliente.dataInicio));
-                                        }
-                                        
-                                        System.Threading.Thread.Sleep(1000);
-
-                                        IWebElement inputDateEnd = driver.FindElementByName("fim");
-                                        inputDateEnd.Clear();
-                                        inputDateEnd.SendKeys("");
-                                        inputDateEnd.SendKeys("31");
-                                        inputDateEnd.SendKeys("12");
-                                        inputDateEnd.SendKeys(DateTime.Now.ToString("yyyy"));
-                                        System.Threading.Thread.Sleep(1000);
-
-                                        IWebElement searchDateButton = driver.FindElementByXPath("//*[@id='variaveis']/span[3]/a");
-                                        searchDateButton.Click();
-
-                                        System.Threading.Thread.Sleep(300000);
-
-                                        // Baixar Relatorio                                   
-                                        IWebElement excelButton = driver.FindElementByClassName("buttons-html5");
-                                        excelButton.Click();
-
-                                        System.Threading.Thread.Sleep(1000);
-
-                                        // Move o relatório baixado para a pasta do respectivo cliente
-                                        MoverRelatorioPasta(RoboBarbearia.Properties.Settings.Default.CaminhoDestinoRelatorios, xCliente.nomeCliente, xRelatorio.nomeArquivoRelatorio, xRelatorio.numeroRelatorio);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                driver.Quit();
-                                throw new ArgumentException("Erro ao logar usuário.");
-                            }
-                        }                     
-                    }               
-                    driver.Quit();
-                }                
+                // Baixa os relatórios de todos os clientes que estão setados para baixar (gerarRelatorioCliente) e que estão com ERRO (dataUltAtualizacao = ERRO)
+                foreach (var cliente in _clienteLista)
+                {
+                    nomeCliente = cliente.NomeCliente;
+                    if (cliente.GerarRelatorioCliente && cliente.DataUltAtualizacao == "ERRO")
+                        BaixarRelatorios(cliente);
+                }
             }
             catch (Exception ex)
             {
-                GravarLog("Principal / Baixar Relatório", ex);                            
+                // Atualiza data da ultima execução com erro, para que seja executado novamente
+                AtualizarCliente(nomeCliente, true);
+                Ferramentas.GravarLog("Principal", ex);
             }
         }
 
-        private static bool LogarSistema(ChromeDriver xDriver, Cliente pCliente)
+        private static bool LogarSistema(RemoteWebDriver xDriver, Cliente pCliente)
         {
             try
-            {                
+            {
                 // Vai para pagina Login do site
-                xDriver.Navigate().GoToUrl(pCliente.admSalaoVIPCliente);
-                xDriver.Navigate().Refresh();
-
-                System.Threading.Thread.Sleep(2000);
+                xDriver.Navigate().GoToUrl(pCliente.AdmSalaoVipCliente);
 
                 // Pega o elemento Login/Senha
-                IWebElement userNameField = xDriver.FindElementById("formEmail");
-                IWebElement userPasswordField = xDriver.FindElementById("formSenha");
+                var waitLogin = new WebDriverWait(xDriver, TimeSpan.FromSeconds(60));
+                waitLogin.Until(
+                    ExpectedConditions.PresenceOfAllElementsLocatedBy(
+                        By.ClassName("container-form")));
+
+                // Fecha o Popup
+                //IWebElement closePopup = xDriver.FindElementByClassName("ilabspush-btn-close");
+                //closePopup.Click();
+
+                var userNameField = xDriver.FindElementById("formEmail");
+                var userPasswordField = xDriver.FindElementById("formSenha");
 
                 // Pega a classe btn-login, botão login
-                IWebElement loginButton = xDriver.FindElementByClassName("btn-login");
+                var loginButton = xDriver.FindElementByClassName("btn-login");
 
                 // Passa Login/Senha
-                if (pCliente.donoCliente?.Trim().ToUpper() == "RODRIGO") {
-                    userNameField.SendKeys(RoboBarbearia.Properties.Settings.Default.Login);
-                    userPasswordField.SendKeys(RoboBarbearia.Properties.Settings.Default.Senha);
-                } else
+                if (pCliente.DonoCliente?.Trim().ToUpper() == Settings.Default.Admin)
                 {
-                    userNameField.SendKeys(pCliente.loginSite);
-                    userPasswordField.SendKeys(pCliente.senhaSite);
+                    userNameField.SendKeys(Settings.Default.Login);
+                    userPasswordField.SendKeys(Settings.Default.Senha);
+                }
+                else
+                {
+                    userNameField.SendKeys(pCliente.LoginSite);
+                    userPasswordField.SendKeys(pCliente.SenhaSite);
                 }
 
                 loginButton.Click();
 
-                System.Threading.Thread.Sleep(5000);
-
-                IWebElement nomeCliente = xDriver.FindElementByClassName("titulo-header");
-
+                Thread.Sleep(5000);
                 return true;
             }
             catch (Exception ex)
             {
-                GravarLog("LogarSistema / Cliente: " + pCliente.nomeCliente, ex);
+                Ferramentas.GravarLog("LogarSistema / Cliente: " + pCliente.NomeCliente, ex);
                 return false;
             }
         }
@@ -144,39 +103,37 @@ namespace WebDriverTest
         {
             try
             {
-                ExcelPackage package = new ExcelPackage(new FileInfo(RoboBarbearia.Properties.Settings.Default.CaminhoUsuarios + "Usuarios.xlsx"));
+                var package =
+                    new ExcelPackage(new FileInfo(Settings.Default.CaminhoUsuarios +
+                                                  "Usuarios.xlsx"));
                 var workBook = package.Workbook;
-                clienteLista = new List<Cliente>();
+                _clienteLista = new List<Cliente>();
 
                 if (workBook != null)
                 {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets["Planilha1"];
-                    int colCount = worksheet.Dimension.End.Column;
-                    int rowCount = worksheet.Dimension.End.Row;
+                    var worksheet = package.Workbook.Worksheets["Planilha1"];
+                    var rowCount = worksheet.Dimension.End.Row;
 
                     // Começa depois do cabeçalho
-                    for (int row = 2; row <= rowCount; row++)
-                    {
+                    for (var row = 2; row <= rowCount; row++)
                         if (!string.IsNullOrEmpty(worksheet.Cells[row, 4].Value.ToString()))
-                        {
-                            clienteLista.Add(new Cliente(
+                            _clienteLista.Add(new Cliente(
                                 worksheet.Cells[row, 1].Value?.ToString().Trim(),
-                                worksheet.Cells[row, 2].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 5].Value?.ToString().Trim().ToUpper() == "SIM",
                                 worksheet.Cells[row, 6].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 7].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 8].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 9].Value?.ToString().Trim(),
-                                worksheet.Cells[row, 10].Value.ToString()
-                                ));
-                        }
-                    }
+                                worksheet.Cells[row, 10].Value.ToString(),
+                                worksheet.Cells[row, 12].Value?.ToString()
+                            ));
                 }
+
                 package.Dispose();
             }
             catch (Exception ex)
             {
-                GravarLog("BuscarClientes", ex);
+                Ferramentas.GravarLog("BuscarClientes", ex);
             }
         }
 
@@ -184,100 +141,149 @@ namespace WebDriverTest
         {
             try
             {
-                ExcelPackage package = new ExcelPackage(new FileInfo(RoboBarbearia.Properties.Settings.Default.CaminhoUsuarios + "Relatorios.xlsx"));
+                var package =
+                    new ExcelPackage(new FileInfo(Settings.Default.CaminhoUsuarios +
+                                                  "Relatorios.xlsx"));
 
                 var workBook = package.Workbook;
-                relatorioLista = new List<Relatorio>();
+                _relatorioLista = new List<Relatorio>();
 
                 if (workBook != null)
                 {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets["Relatorios"];
-                    int colCount = worksheet.Dimension.End.Column;
-                    int rowCount = worksheet.Dimension.End.Row;
+                    var worksheet = package.Workbook.Worksheets["Relatorios"];
+                    var rowCount = worksheet.Dimension.End.Row;
 
                     // Começa depois do cabeçalho
-                    for (int row = 2; row <= rowCount; row++)
-                    {
+                    for (var row = 2; row <= rowCount; row++)
                         if (!string.IsNullOrEmpty(worksheet.Cells[row, 2].Value.ToString()))
-                        {
-                            relatorioLista.Add(new Relatorio(
-                                worksheet.Cells[row, 1].Value.ToString().Trim(),
-                                worksheet.Cells[row, 2].Value.ToString().Trim(),
+                            _relatorioLista.Add(new Relatorio(worksheet.Cells[row, 2].Value.ToString().Trim(),
                                 worksheet.Cells[row, 3].Value.ToString().Trim(),
                                 worksheet.Cells[row, 4].Value.ToString().Trim().ToUpper() == "SIM"));
-                        }
-                    }
                 }
+
                 package.Dispose();
             }
             catch (Exception ex)
             {
-                GravarLog("BuscarRelatorios", ex);
+                Ferramentas.GravarLog("BuscarRelatorios", ex);
             }
         }
 
-        private static void LimparPastaDownload(string xCaminho, string xNomeArquivoRelatorio)
+        private static void AtualizarCliente(string pNomeCliente, bool xEhErro)
         {
             try
             {
-                FileInfo arquivoRelatorioAntigo = new FileInfo(Path.Combine(xCaminho, xNomeArquivoRelatorio));
-                if (arquivoRelatorioAntigo.Exists)
+                var package =
+                    new ExcelPackage(new FileInfo(Settings.Default.CaminhoUsuarios +
+                                                  "Usuarios.xlsx"));
+                var workBook = package.Workbook;
+                _clienteLista = new List<Cliente>();
+
+                if (workBook != null)
                 {
-                    arquivoRelatorioAntigo.Delete();
+                    var worksheet = package.Workbook.Worksheets["Planilha1"];
+                    var rowCount = worksheet.Dimension.End.Row;
+
+                    // Começa depois do cabeçalho
+                    for (var row = 2; row <= rowCount; row++)
+                        if (worksheet.Cells[row, 1].Value.ToString() == pNomeCliente)
+                            worksheet.Cells[row, 12].Value = xEhErro ? "ERRO" : DateTime.Now.ToString("ddMMyy");
                 }
+
+                package.Save();
+                package.Dispose();
             }
             catch (Exception ex)
             {
-                GravarLog("LimparPastaDownload", ex);
+                Ferramentas.GravarLog("BuscarClientes", ex);
             }
         }
 
-        private static void MoverRelatorioPasta(string xPathCliente, string xNomeRelatorio, string xNomeArquivoRelatorio, string xNumeroRelatorio)
+        private static void BaixarRelatorios(Cliente xCliente)
         {
-            try
+            var optionsChr = new ChromeOptions();
+            // Roda sem o browser
+            //optionsChr.AddArgument("--headless");
+            optionsChr.AddArgument("--ignore-certificate-errors");
+            optionsChr.AddArgument("--ignore-ssl-errors");
+            //optionsChr.AddArgument("enable-automation"); 
+            //optionsChr.AddArgument("--no-sandbox");
+            //optionsChr.AddArgument("--disable-infobars");
+            //optionsChr.AddArgument("--disable-dev-shm-usage");
+            //optionsChr.AddArgument("--disable-browser-side-navigation");
+            //optionsChr.AddArgument("--disable-gpu");
+
+            // Inicializa o Chrome Driver
+            using (var driver = new ChromeDriver(optionsChr))
             {
-                xPathCliente = xPathCliente + "Relatorio_" + xNumeroRelatorio;
-                if (!Directory.Exists(xPathCliente))
+                if (LogarSistema(driver, xCliente))
                 {
-                    Directory.CreateDirectory(xPathCliente);
+                    foreach (var relatorio in _relatorioLista.Where(relatorio => relatorio.AtivoRelatorio))
+                    {
+                        driver.Navigate().GoToUrl(Settings.Default.Relatorios +
+                                                  relatorio.NumeroRelatorio);
+                        driver.Navigate().Refresh();
+
+                        Thread.Sleep(5000);
+
+                        Ferramentas.LimparPastaDownload(Settings.Default.Download,
+                            relatorio.NomeArquivoRelatorio);
+                        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+
+                        // Setar a data
+                        var inputDateIn =
+                            wait.Until(ExpectedConditions.ElementToBeClickable(
+                                driver.FindElementByName("inicio")));
+                        inputDateIn.Clear();
+
+                        var dataInicial = new DateTime(2018, 1, 1);
+
+                        //inputDateIn.SendKeys(dataInicial.ToString("   01012018"));
+                        inputDateIn.SendKeys(xCliente.DataInicio.Trim().Length == 7
+                            ? dataInicial.ToString("   0" + xCliente.DataInicio)
+                            : dataInicial.ToString("   " + xCliente.DataInicio));
+
+                        Thread.Sleep(1000);
+
+                        var inputDateEnd = driver.FindElementByName("fim");
+                        inputDateEnd.Clear();
+                        inputDateEnd.SendKeys("");
+                        inputDateEnd.SendKeys("31");
+                        inputDateEnd.SendKeys("12");
+                        inputDateEnd.SendKeys(DateTime.Now.ToString("yyyy"));
+                        Thread.Sleep(1000);
+
+                        var searchDateButton =
+                            driver.FindElementByXPath("//*[@id='variaveis']/span[3]/a");
+                        searchDateButton?.Click();
+
+                        var waitTable = new WebDriverWait(driver, TimeSpan.FromSeconds(120));
+                        waitTable.Until(
+                            ExpectedConditions.VisibilityOfAllElementsLocatedBy(
+                                By.ClassName("sorting_1")));
+
+                        Thread.Sleep(10000);
+                        // Baixar Relatorio   
+                        var excelButton = driver.FindElementByClassName("buttons-html5");
+                        excelButton.Click();
+
+                        Thread.Sleep(5000);
+
+                        // Move o relatório baixado para a pasta do respectivo cliente
+                        Ferramentas.MoverRelatorioPasta(Settings.Default.CaminhoDestinoRelatorios,
+                            xCliente.NomeCliente, relatorio.NomeArquivoRelatorio, relatorio.NumeroRelatorio);
+
+                        // Atualiza data da ultima execução com sucesso do cliente
+                        AtualizarCliente(xCliente.NomeCliente, false);
+                    }
+                }
+                else
+                {
+                    driver.Quit();
+                    throw new ArgumentException("Erro ao logar usuário.");
                 }
 
-                FileInfo arquivoRelatoriNovo = new FileInfo(Path.Combine(RoboBarbearia.Properties.Settings.Default.Download, xNomeArquivoRelatorio));
-                if (arquivoRelatoriNovo.Exists)
-                {
-                    LimparPastaDownload(xPathCliente, xNomeRelatorio + ".xlsx");
-                    arquivoRelatoriNovo.MoveTo(xPathCliente + "\\" + xNomeRelatorio + ".xlsx");
-                }
-            }
-            catch (Exception ex)
-            {
-                GravarLog("MoverRelatorioPasta", ex);
-            }
-        }
-
-        private static void GravarLog(string xMsg, Exception xMensagemErro)
-        {
-            try
-            {
-                if (!File.Exists(arquivoLogErro))
-                {
-                    FileStream arquivo = File.Create(arquivoLogErro);
-                    arquivo.Close();
-                }
-
-                using (StreamWriter textWriter = File.AppendText(arquivoLogErro))
-                {
-                    textWriter.Write("\r\nLog Entrada : ");
-                    textWriter.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-                    textWriter.WriteLine("  :");
-                    textWriter.WriteLine($"  Erro rotina: {xMsg}");
-                    textWriter.WriteLine($"  :{xMensagemErro}");
-                    textWriter.WriteLine("------------------------------------");
-                }
-            }
-            catch (Exception)
-            {
-                throw;
+                driver.Quit();
             }
         }
     }

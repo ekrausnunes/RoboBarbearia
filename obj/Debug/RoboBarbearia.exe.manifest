@@ -43,26 +43,26 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EPPlus.dll" size="1297920">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EPPlus.dll" size="1298432">
       <assemblyIdentity name="EPPlus" version="4.5.3.2" publicKeyToken="EA159FDAA78159A1" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>cJ2ZFaEVPERa9d2jETxFdilN0IY=</dsig:DigestValue>
+        <dsig:DigestValue>XDorE22OvF3/LXFp8CaUansO8UI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="RoboBarbearia.exe" size="18432">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="RoboBarbearia.exe" size="19968">
       <assemblyIdentity name="RoboBarbearia" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>S578BanFW/tHV3myDEz38ifV1AI=</dsig:DigestValue>
+        <dsig:DigestValue>EUA+sUYOBr+LtjeN1CujKMzs1TE=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -75,6 +75,18 @@
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
         <dsig:DigestValue>PolxugRekEojm2g6nS8sdRcUAW0=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SeleniumExtras.WaitHelpers.dll" size="12800">
+      <assemblyIdentity name="SeleniumExtras.WaitHelpers" version="3.11.0.0" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <dsig:DigestValue>diSsSpgADUUyj76Dj1wbbeb7rsE=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -123,22 +135,22 @@
       <dsig:DigestValue>E7RkCWjZog0VGbWAk9tkOwNPuLc=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="chromedriver.exe" size="7739904">
+  <file name="chromedriver.exe" size="8873472">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>KXz6GgLiQMvCHZSK9DGlYvibrPw=</dsig:DigestValue>
+      <dsig:DigestValue>7Ka3jElMU/EZfDSpZOALv5+WcGY=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="RoboBarbearia.exe.config" size="1981">
+  <file name="RoboBarbearia.exe.config" size="3034">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>fOiaeHs2yPklOvCH0Sav2KwMLqE=</dsig:DigestValue>
+      <dsig:DigestValue>3NKRkhlPZXvAvbuq5lFX/kjkP04=</dsig:DigestValue>
     </hash>
   </file>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">

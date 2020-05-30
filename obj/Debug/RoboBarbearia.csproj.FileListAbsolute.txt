@@ -17,8 +17,6 @@ C:\RoboBarbearia\bin\RoboBarbearia.exe.manifest
 C:\RoboBarbearia\bin\RoboBarbearia.application
 C:\RoboBarbearia\bin\RoboBarbearia.exe
 C:\RoboBarbearia\bin\RoboBarbearia.pdb
-C:\RoboBarbearia\bin\RoboBarbearia.exe.CodeAnalysisLog.xml
-C:\RoboBarbearia\bin\RoboBarbearia.exe.lastcodeanalysissucceeded
 C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Debug\RoboBarbearia.csprojAssemblyReference.cache
 C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Debug\RoboBarbearia.csproj.CoreCompileInputs.cache
 C:\Users\eduardo.nunes\Downloads\RoboBarbearia\obj\Debug\RoboBarbearia.TrustInfo.xml

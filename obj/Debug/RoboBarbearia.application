@@ -7,14 +7,14 @@
     <framework targetVersion="4.0" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="RoboBarbearia.exe.manifest" size="8664">
+    <dependentAssembly dependencyType="install" codebase="RoboBarbearia.exe.manifest" size="9317">
       <assemblyIdentity name="RoboBarbearia.exe" version="1.0.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>oiGUCMkHO6e7JupZe5mlLXRnTFo=</dsig:DigestValue>
+        <dsig:DigestValue>wE7N3gx65Z5Iyrx897OtxdwvPbQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

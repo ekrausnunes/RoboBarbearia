@@ -76,5 +76,23 @@ namespace RoboBarbearia.Properties {
                 return ((string)(this["CaminhoDestinoRelatorios"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://admin.salaovip.com.br/admin/financeiro/entradas-e-saidas#valores2")]
+        public string Financeiro {
+            get {
+                return ((string)(this["Financeiro"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("RODRIGO")]
+        public string Admin {
+            get {
+                return ((string)(this["Admin"]));
+            }
+        }
     }
 }

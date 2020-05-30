@@ -16,7 +16,6 @@
       <e p="packages" t="ExcludeRecursive" />
       <e p="Program.cs" t="Include" />
       <e p="Properties" t="Include">
-        <e p="app.manifest" t="Include" />
         <e p="AssemblyInfo.cs" t="Include" />
         <e p="Settings.Designer.cs" t="Include" />
         <e p="Settings.settings" t="Include" />

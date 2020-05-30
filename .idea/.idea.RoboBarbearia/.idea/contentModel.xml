@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\RoboBarbearia\bin" t="ExcludeRecursive" />
+    <e p="C:\Users\eduardo.nunes\AppData\local\JetBrains\Rider2020.1\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\eduardo.nunes\AppData\local\JetBrains\Rider2020.1\resharper-host\local\Transient\ReSharperHost\v201\SolutionCaches\_RoboBarbearia.1934129115.00" t="ExcludeRecursive" />
+    <e p="C:\Users\eduardo.nunes\Downloads\RoboBarbearia" t="IncludeRecursive">
+      <e p="analyze_data.ico" t="Include" />
+      <e p="app.config" t="Include" />
+      <e p="chromedriver.exe" t="Include" />
+      <e p="Model" t="Include">
+        <e p="Cliente.cs" t="Include" />
+        <e p="Relatorio.cs" t="Include" />
+      </e>
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Program.cs" t="Include" />
+      <e p="Properties" t="Include">
+        <e p="app.manifest" t="Include" />
+        <e p="AssemblyInfo.cs" t="Include" />
+        <e p="Settings.Designer.cs" t="Include" />
+        <e p="Settings.settings" t="Include" />
+      </e>
+      <e p="RoboBarbearia.csproj" t="IncludeRecursive" />
+      <e p="RoboBarbearia.sln" t="IncludeFlat" />
+      <e p="Utils" t="Include">
+        <e p="Ferramentas.cs" t="Include" />
+      </e>
+    </e>
+  </component>
+</project>

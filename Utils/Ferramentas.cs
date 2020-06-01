@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
 using RoboBarbearia.Properties;
 
 namespace RoboBarbearia.Utils
@@ -9,12 +13,12 @@ namespace RoboBarbearia.Utils
         private static readonly string ArquivoLogErro =
             Path.Combine(Settings.Default.CaminhoUsuarios, "ArquivoLogErro.txt");
 
-        public static void LimparPastaDownload(string xCaminho, string xNomeArquivoRelatorio)
+        public static void LimparPastaDownload(string xCaminho, string xNomeArquivo)
         {
             try
             {
-                var arquivoRelatorioAntigo = new FileInfo(Path.Combine(xCaminho, xNomeArquivoRelatorio));
-                if (arquivoRelatorioAntigo.Exists) arquivoRelatorioAntigo.Delete();
+                var arquivoAntigo = new FileInfo(Path.Combine(xCaminho, xNomeArquivo));
+                if (arquivoAntigo.Exists) arquivoAntigo.Delete();
             }
             catch (Exception ex)
             {
@@ -42,6 +46,28 @@ namespace RoboBarbearia.Utils
                 GravarLog("MoverRelatorioPasta", ex);
             }
         }
+        
+        public static void MoverFinanceiroPasta(string xPathCliente, string xNomeCliente,
+            string xNomeArquivo, string xNomeFinanceiro, string xContaBancaria, string xTipoData, string xTipoValor)
+        {
+            try
+            {
+                xPathCliente = xPathCliente + "Financeiro_" + xNomeFinanceiro + "_" + xContaBancaria + "_" + xTipoData + "_" + xTipoValor;
+                if (!Directory.Exists(xPathCliente)) Directory.CreateDirectory(xPathCliente);
+
+                var arquivoRelatorioNovo =
+                    new FileInfo(
+                        Path.Combine(Settings.Default.Download, xNomeArquivo));
+                
+                if (!arquivoRelatorioNovo.Exists) return;
+                LimparPastaDownload(xPathCliente, xNomeCliente + ".xlsx");
+                arquivoRelatorioNovo.MoveTo(xPathCliente + "\\" + xNomeCliente + ".xlsx");
+            }
+            catch (Exception ex)
+            {
+                GravarLog("MoverFinanceiroPasta", ex);
+            }
+        }
 
         public static void GravarLog(string xMsg, Exception xMensagemErro)
         {
@@ -60,6 +86,31 @@ namespace RoboBarbearia.Utils
                 textWriter.WriteLine($"  :{xMensagemErro}");
                 textWriter.WriteLine("------------------------------------");
             }
+        }
+        
+        public static bool ValidarMaior365Dias(int xDia, int xMes, int xAno)
+        {
+            var data = new DateTime(xAno, xMes, xDia);
+            
+            var dataAtual = DateTime.Now;
+
+            return ((data - dataAtual).Days < 365); 
+        }
+
+        public static bool ValidarElementoSeExiste(RemoteWebDriver xDriver, string xElement, string xTipoBusca)
+        {
+            var elementExiste = new List<IWebElement>();
+            switch (xTipoBusca)
+            {
+                case "ClassName":
+                    elementExiste.AddRange(xDriver.FindElementsByClassName(xElement));
+                    break;
+                case "XPath":
+                    elementExiste.AddRange(xDriver.FindElementsByClassName(xElement));
+                    break;
+            }
+            
+            return elementExiste.Count > 0;
         }
     }
 }

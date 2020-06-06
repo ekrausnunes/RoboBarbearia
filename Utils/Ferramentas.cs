@@ -87,7 +87,7 @@ namespace RoboBarbearia.Utils
                 textWriter.WriteLine("------------------------------------");
             }
         }
-        
+
         public static bool ValidarMaior365Dias(int xDia, int xMes, int xAno)
         {
             var data = new DateTime(xAno, xMes, xDia);

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
@@ -29,6 +27,7 @@ namespace RoboBarbearia
             var nomeCliente = "";
             var rotinaRelatorio = false;
             var rotinaFinanceiro = false;
+            
             try
             {
                 BuscarRelatorios();
@@ -139,10 +138,10 @@ namespace RoboBarbearia
                                 worksheet.Cells[row, 7].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 8].Value?.ToString().Trim(),
                                 worksheet.Cells[row, 9].Value?.ToString().Trim(),
-                                worksheet.Cells[row, 10].Value.ToString(),
+                                worksheet.Cells[row, 10].Value?.ToString(),
                                 worksheet.Cells[row, 12].Value?.ToString(),
                                 worksheet.Cells[row, 13].Value?.ToString().Trim().ToUpper() == "SIM",
-                                worksheet.Cells[row, 14].Value.ToString(),
+                                worksheet.Cells[row, 14].Value?.ToString(),
                                 worksheet.Cells[row, 15].Value?.ToString()
                             ));
                 }
@@ -345,14 +344,15 @@ namespace RoboBarbearia
                     }
                     catch (Exception ex)
                     {
+                        AtualizarCliente(xCliente.NomeCliente, true, true, false);
                         Ferramentas.GravarLog("BaixarRelatorios", ex);
                     }
                 }
                 else
                 {
-                    driver.Quit();
                     throw new ArgumentException("Erro ao logar usuário.");
                 }
+                driver.Close();
                 driver.Quit();
             }
         }
@@ -499,15 +499,15 @@ namespace RoboBarbearia
                     }
                     catch (Exception ex)
                     {
+                        AtualizarCliente(xCliente.NomeCliente, true, false, true);
                         Ferramentas.GravarLog("BaixarFinanceiros", ex);
                     }    
                 }
                 else
                 {
-                    driver.Quit();
                     throw new ArgumentException("Erro ao logar usuário.");
                 }
-
+                driver.Close();
                 driver.Quit();
             }
         }

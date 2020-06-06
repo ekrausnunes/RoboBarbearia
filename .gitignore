@@ -361,3 +361,8 @@ setup.exe
 UpgradeLog.XML
 *.sqlsuo
 /RoboBarbearia.sln
+Properties/Settings.settings
+obj/Debug/*
+Properties/Settings.Designer.cs
+.idea/
+

@@ -362,7 +362,7 @@ UpgradeLog.XML
 *.sqlsuo
 /RoboBarbearia.sln
 Properties/Settings.settings
-obj/Debug/*
+obj/*
 Properties/Settings.Designer.cs
 .idea/
-
+app.config

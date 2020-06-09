@@ -82,6 +82,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Model\Cliente.cs" />
+        <Compile Include="Model\Financeiro.cs" />
         <Compile Include="Model\Relatorio.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,6 +91,9 @@
             <DesignTimeSharedInput>True</DesignTimeSharedInput>
             <DependentUpon>Settings.settings</DependentUpon>
         </Compile>
+        <Compile Include="Service\ServiceCliente.cs" />
+        <Compile Include="Service\ServiceFinanceiro.cs" />
+        <Compile Include="Service\ServiceRelatorio.cs" />
         <Compile Include="Utils\Ferramentas.cs" />
     </ItemGroup>
     <ItemGroup>
@@ -102,6 +106,7 @@
         <None Include="app.config">
             <SubType>Designer</SubType>
         </None>
+        <None Include="Properties\app.manifest" />
         <None Include="Properties\Settings.settings">
             <Generator>SettingsSingleFileGenerator</Generator>
             <LastGenOutput>Settings.Designer.cs</LastGenOutput>

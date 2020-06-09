@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
+using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
+using RoboBarbearia.Model;
 using RoboBarbearia.Properties;
 
 namespace RoboBarbearia.Utils
@@ -11,7 +14,7 @@ namespace RoboBarbearia.Utils
     public static class Ferramentas
     {
         private static readonly string ArquivoLogErro =
-            Path.Combine(Settings.Default.CaminhoUsuarios, "ArquivoLogErro.txt");
+            Path.Combine(Settings.Default.CaminhoUsuarios + "\\" + "Erros" + "\\", "ArquivoLogErro_" + DateTime.Now.ToString("yy_MM_dd") + ".txt");
 
         public static void LimparPastaDownload(string xCaminho, string xNomeArquivo)
         {
@@ -111,6 +114,49 @@ namespace RoboBarbearia.Utils
             }
             
             return elementExiste.Count > 0;
+        }
+        
+        public static bool LogarSistema(RemoteWebDriver xDriver, Cliente pCliente)
+        {
+            try
+            {
+                // Vai para pagina Login do site
+                xDriver.Navigate().GoToUrl(pCliente.AdmSalaoVipCliente);
+
+                // Pega o elemento Login/Senha
+                var waitLogin = new WebDriverWait(xDriver, TimeSpan.FromSeconds(60));
+                waitLogin.Until(
+                    ExpectedConditions.PresenceOfAllElementsLocatedBy(
+                        By.ClassName("container-form")));
+                
+                var userNameField = xDriver.FindElementById("formEmail");
+                var userPasswordField = xDriver.FindElementById("formSenha");
+
+                // Pega a classe btn-login, botão login
+                var loginButton = xDriver.FindElementByClassName("btn-login");
+
+                // Passa Login/Senha
+                if (pCliente.DonoCliente?.Trim().ToUpper() == Settings.Default.Admin)
+                {
+                    userNameField.SendKeys(Settings.Default.Login);
+                    userPasswordField.SendKeys(Settings.Default.Senha);
+                }
+                else
+                {
+                    userNameField.SendKeys(pCliente.LoginSite);
+                    userPasswordField.SendKeys(pCliente.SenhaSite);
+                }
+
+                loginButton.Click();
+
+                Thread.Sleep(5000);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Ferramentas.GravarLog("LogarSistema / Cliente: " + pCliente.NomeCliente, ex);
+                return false;
+            }
         }
     }
 }

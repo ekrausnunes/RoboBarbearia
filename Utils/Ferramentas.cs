@@ -126,7 +126,7 @@ namespace RoboBarbearia.Utils
                 // Pega o elemento Login/Senha
                 var waitLogin = new WebDriverWait(xDriver, TimeSpan.FromSeconds(60));
                 waitLogin.Until(
-                    ExpectedConditions.PresenceOfAllElementsLocatedBy(
+                    SeleniumExtras.WaitHelpers.ExpectedConditions.PresenceOfAllElementsLocatedBy(
                         By.ClassName("container-form")));
                 
                 var userNameField = xDriver.FindElementById("formEmail");

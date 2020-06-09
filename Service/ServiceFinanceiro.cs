@@ -104,7 +104,7 @@ namespace RoboBarbearia.Service
 
                             // Setar a data
                             var inputDateIn =
-                                wait.Until(ExpectedConditions.ElementToBeClickable(
+                                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(
                                     driver.FindElementById("dataini")));
                             inputDateIn.Click();
                             inputDateIn.Clear();
@@ -181,7 +181,7 @@ namespace RoboBarbearia.Service
 
                             var waitTable = new WebDriverWait(driver, TimeSpan.FromSeconds(120));
                             waitTable.Until(
-                                ExpectedConditions.VisibilityOfAllElementsLocatedBy(
+                                SeleniumExtras.WaitHelpers.ExpectedConditions.VisibilityOfAllElementsLocatedBy(
                                     By.ClassName("sorting_1")));
 
                             Thread.Sleep(10000);

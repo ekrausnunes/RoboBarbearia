@@ -3,7 +3,8 @@
     public class Cliente
     {
         public Cliente(string nomeCliente, bool gerarRelatorioCliente, string admSalaoVipCliente,
-            string loginSite, string senhaSite, string donoCliente, string dataInicio, string dataUltAtualizacao)
+            string loginSite, string senhaSite, string donoCliente, string dataInicioRelatorio, string dataUltAtualizacaoRelatorios, 
+            bool gerarFinanceiroCliente, string dataInicioFinanceiro, string dataUltAtualizacaoFinanceiro)
         {
             NomeCliente = nomeCliente;
             GerarRelatorioCliente = gerarRelatorioCliente;
@@ -11,8 +12,11 @@
             LoginSite = loginSite;
             SenhaSite = senhaSite;
             DonoCliente = donoCliente;
-            DataInicio = dataInicio;
-            DataUltAtualizacao = dataUltAtualizacao;
+            DataInicioRelatorio = dataInicioRelatorio;
+            DataUltAtualizacaoRelatorios = dataUltAtualizacaoRelatorios;
+            GerarFinanceiroCliente = gerarFinanceiroCliente;
+            DataInicioFinanceiro = dataInicioFinanceiro;
+            DataUltAtualizacaoFinanceiro = dataUltAtualizacaoFinanceiro;
         }
 
         public string NomeCliente { get; }
@@ -21,7 +25,10 @@
         public string LoginSite { get; }
         public string SenhaSite { get; }
         public string DonoCliente { get; }
-        public string DataInicio { get; }
-        public string DataUltAtualizacao { get; }
+        public string DataInicioRelatorio { get; }
+        public string DataUltAtualizacaoRelatorios { get; }
+        public bool GerarFinanceiroCliente { get; }
+        public string DataInicioFinanceiro { get; }
+        public string DataUltAtualizacaoFinanceiro { get; }
     }
 }

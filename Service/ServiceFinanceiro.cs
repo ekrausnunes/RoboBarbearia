@@ -33,7 +33,7 @@ namespace RoboBarbearia.Service
                     var worksheet = package.Workbook.Worksheets["Financeiro"];
                     var rowCount = worksheet.Dimension.End.Row;
 
-                    // Come√ßa depois do cabe√ßalho
+                    // ComeÁa depois do cabeÁalho
                     for (var row = 2; row <= rowCount; row++)
                         if (!string.IsNullOrEmpty(worksheet.Cells[row, 1].Value.ToString()))
                             financeiroLista.Add(new Financeiro(
@@ -56,6 +56,8 @@ namespace RoboBarbearia.Service
 
         public static void BaixarFinanceiros(Cliente xCliente, IEnumerable<Financeiro> xFinanceiroLista)
         {
+            bool ErrorDownload = false;
+
             foreach (var financeiro in xFinanceiroLista.Where(financeiro => financeiro.AtivoFinanceiro))
             {
                 var optionsChr = new ChromeOptions();
@@ -65,12 +67,12 @@ namespace RoboBarbearia.Service
                 // Inicializa o Chrome Driver
                 using (var driver = new ChromeDriver(optionsChr))
                 {
-                    if (Ferramentas.LogarSistema(driver, xCliente))
+                    try
                     {
-                        try
+                        if (Ferramentas.LogarSistema(driver, xCliente))
                         {
                             driver.Navigate().GoToUrl(Settings.Default.Financeiro);
-                            
+                                
                             driver.Navigate().Refresh();
                             Thread.Sleep(5000);
 
@@ -99,7 +101,7 @@ namespace RoboBarbearia.Service
                                     break;
                             }
 
-                            // As vezes aparece um popup em cima do elemento e com isso √© necess√°rio for√ßar uma execu√ß√£o em JS.
+                            // As vezes aparece um popup em cima do elemento e com isso È necess·rio forÁar uma execuÁ„o em JS.
                             driver.ExecuteJavaScript("arguments[0].click();", tabFinan);
 
                             // Setar a data
@@ -114,7 +116,7 @@ namespace RoboBarbearia.Service
                                 ? dataInitial.ToString("0" + xCliente.DataInicioFinanceiro)
                                 : dataInitial.ToString(xCliente.DataInicioFinanceiro));
 
-                            // O site valida se a data inicial e a data final tem mais de 365 dias de <>, caso tenha eu tiro 365 da data atual e n√£o pego a data do usu√°rio
+                            // O site valida se a data inicial e a data final tem mais de 365 dias de <>, caso tenha eu tiro 365 da data atual e n„o pego a data do usu·rio
                             inputDateIn.SendKeys(Ferramentas.ValidarMaior365Dias(
                                 int.Parse(dateInitialUser.Substring(0, 2)),
                                 int.Parse(dateInitialUser.Substring(2, 2)),
@@ -134,7 +136,7 @@ namespace RoboBarbearia.Service
                                     driver.FindElementByXPath("//*[@id='conta_bancaria']/option[2]").Click();
                                     break;
                                 case "AVECPASS":
-                                    // Caso n√£o tenha esta op√ß√£o, vai para o pr√≥ximo.
+                                    // Caso n„o tenha esta opÁ„o, vai para o prÛximo.
                                     if (Ferramentas.ValidarElementoSeExiste(driver,
                                         "//*[@id='conta_bancaria']/option[3]", "XPath"))
                                     {
@@ -151,11 +153,11 @@ namespace RoboBarbearia.Service
                             // Setar tipo de conta
                             switch (financeiro.TipoData.ToUpper())
                             {
-                                case "QUITA√á√ÉO":
+                                case "QUITA«√O":
                                     driver.FindElementByXPath("//*[@id='campoRefinarBusca']/label[4]/select/option[1]")
                                         .Click();
                                     break;
-                                case "COMPET√äNCIA":
+                                case "COMPET NCIA":
                                     driver.FindElementByXPath("//*[@id='campoRefinarBusca']/label[4]/select/option[2]")
                                         .Click();
                                     break;
@@ -165,18 +167,18 @@ namespace RoboBarbearia.Service
                                     break;
                             }
 
-                            // Selecionar Bruto/L√≠quido
+                            // Selecionar Bruto/LÌ≠quido
                             switch (financeiro.TipoValor.ToUpper())
                             {
                                 case "BRUTO":
                                     driver.FindElementByXPath("//*[@id='campoRefinarBusca']/label[7]/label[1]").Click();
                                     break;
-                                case "L√çQUIDO":
+                                case "LÕQUIDO":
                                     driver.FindElementByXPath("//*[@id='campoRefinarBusca']/label[7]/label[2]").Click();
                                     break;
                             }
 
-                            // Executar a busca
+                            // Executar a busca 
                             driver.FindElementByXPath("//*[@id='divExtrato']/form/div[2]/a").Click();
 
                             var waitTable = new WebDriverWait(driver, TimeSpan.FromSeconds(120));
@@ -191,27 +193,33 @@ namespace RoboBarbearia.Service
 
                             Thread.Sleep(5000);
 
-                            // Move o relat√≥rio baixado para a pasta do respectivo cliente
+                            // Move o relatÛrio baixado para a pasta do respectivo cliente
                             Ferramentas.MoverFinanceiroPasta(Settings.Default.CaminhoDestinoFinanceiros,
                                 xCliente.NomeCliente, financeiro.NomeArquivo, financeiro.NomeFinanceiro,
                                 financeiro.ContasBancarias, financeiro.TipoData, financeiro.TipoValor);
 
-                            // Atualiza data da ultima execu√ß√£o com sucesso do cliente
-                            ServiceCliente.AtualizarCliente(xCliente.NomeCliente, false, false, true);
+                            // Atualiza data da ultima execuÁ„o com sucesso do cliente e valida se quem chamou foi a rotina de erros
+                            if (!ErrorDownload) 
+                            {
+                                ServiceCliente.AtualizarCliente(xCliente.NomeCliente, false, false, true);
+                            }                               
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            ServiceCliente.AtualizarCliente(xCliente.NomeCliente, true, false, true);
-                            Ferramentas.GravarLog("BaixarFinanceiros", ex);
+                            throw new ArgumentException("Erro ao logar usu·rio.");
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        throw new ArgumentException("Erro ao logar usu√°rio.");
+                        ServiceCliente.AtualizarCliente(xCliente.NomeCliente, true, false, true);
+                        Ferramentas.GravarLog("BaixarFinanceiros - " + financeiro.NomeArquivo + " / Cliente: " + xCliente.NomeCliente, ex);
+                        ErrorDownload = true;
                     }
-
-                    driver.Close();
-                    driver.Quit();
+                    finally
+                    {
+                        driver.Close();
+                        driver.Quit();
+                    }
                 }
             }
         }

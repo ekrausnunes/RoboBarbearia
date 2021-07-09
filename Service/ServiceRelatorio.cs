@@ -32,12 +32,13 @@ namespace RoboBarbearia.Service
                     var worksheet = package.Workbook.Worksheets["Relatorios"];
                     var rowCount = worksheet.Dimension.End.Row;
 
-                    // Come√ßa depois do cabe√ßalho
+                    // ComeÁa depois do cabeÁalho
                     for (var row = 2; row <= rowCount; row++)
                         if (!string.IsNullOrEmpty(worksheet.Cells[row, 2].Value.ToString()))
                             relatorioLista.Add(new Relatorio(worksheet.Cells[row, 2].Value.ToString().Trim(),
                                 worksheet.Cells[row, 3].Value.ToString().Trim(),
-                                worksheet.Cells[row, 4].Value.ToString().Trim().ToUpper() == "SIM"));
+                                worksheet.Cells[row, 4].Value.ToString().Trim().ToUpper() == "SIM",
+                                worksheet.Cells[row, 5].Value.ToString().Trim()));
                 }
 
                 package.Dispose();
@@ -48,8 +49,11 @@ namespace RoboBarbearia.Service
             }
             return new List<Relatorio>(relatorioLista ?? throw new InvalidOperationException("Rotina BuscarRelatorios, retornou null!"));
         }
+        
         public static void BaixarRelatorios(Cliente xCliente, IEnumerable<Relatorio> xRelatorioLista)
         {
+            bool ErrorDownload = false;
+
             foreach (var relatorio in xRelatorioLista.Where(relatorio => relatorio.AtivoRelatorio))
             {
                 var optionsChr = new ChromeOptions();
@@ -61,9 +65,9 @@ namespace RoboBarbearia.Service
                 // Inicializa o Chrome Driver
                 using (var driver = new ChromeDriver(optionsChr))
                 {
-                    if (Ferramentas.LogarSistema(driver, xCliente))
+                    try
                     {
-                        try
+                        if (Ferramentas.LogarSistema(driver, xCliente))
                         {
                             driver.Navigate().GoToUrl(Settings.Default.Relatorios + relatorio.NumeroRelatorio);
                             driver.Navigate().Refresh();
@@ -103,7 +107,7 @@ namespace RoboBarbearia.Service
                             Thread.Sleep(1000);
 
                             var searchDateButton =
-                                driver.FindElementByXPath("//*[@id='variaveis']/span[3]/a");
+                                driver.FindElementByXPath($"//*[@id='variaveis']/div[1]/span[{relatorio.NumeroSpan}]/a");
                             searchDateButton?.Click();
 
                             var waitTable = new WebDriverWait(driver, TimeSpan.FromSeconds(120));
@@ -112,33 +116,40 @@ namespace RoboBarbearia.Service
                                     By.ClassName("sorting_1")));
 
                             Thread.Sleep(10000);
-                            
+
                             // Baixar Relatorio   
                             var excelButton = driver.FindElementByClassName("buttons-html5");
                             excelButton.Click();
 
                             Thread.Sleep(5000);
 
-                            // Move o relat√≥rio baixado para a pasta do respectivo cliente
+                            // Move o relatÛrio baixado para a pasta do respectivo cliente
                             Ferramentas.MoverRelatorioPasta(Settings.Default.CaminhoDestinoRelatorios,
                                 xCliente.NomeCliente, relatorio.NomeArquivoRelatorio, relatorio.NumeroRelatorio);
-                            
-                            // Atualiza data da ultima execu√ß√£o com sucesso do cliente
-                            ServiceCliente.AtualizarCliente(xCliente.NomeCliente, false, true, false);
-                        }
-                        catch (Exception ex)
-                        {
-                            ServiceCliente.AtualizarCliente(xCliente.NomeCliente, true, true, false);
-                            Ferramentas.GravarLog("BaixarRelatorios", ex);
-                        }
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Erro ao logar usu√°rio.");
-                    }
 
-                    driver.Close();
-                    driver.Quit();
+                            // Atualiza data da ultima execuÁ„o com sucesso do cliente e valida se quem chamou foi a rotina de erros
+                            if (!ErrorDownload)
+                            {
+                                ServiceCliente.AtualizarCliente(xCliente.NomeCliente, false, true, false);
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Erro ao logar usu·rio.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ServiceCliente.AtualizarCliente(xCliente.NomeCliente, true, true, false);
+                        Ferramentas.GravarLog("BaixarRelatorios - " + relatorio.NumeroRelatorio + " / Cliente: " + xCliente.NomeCliente, ex);
+                        ErrorDownload = true;
+
+                    }
+                    finally
+                    {
+                        driver.Close();
+                        driver.Quit();
+                    }
                 }
             }
         }

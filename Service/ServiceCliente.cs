@@ -74,11 +74,12 @@ namespace RoboBarbearia.Service
                         {
                             if (worksheet.Cells[row, 1].Value.ToString() == pNomeCliente)
                                 worksheet.Cells[row, 12].Value = xEhErro ? "ERRO" : DateTime.Now.ToString("ddMMyy");
-                        }
-
-                        if (!xEhFinanceiro) continue;
-                        if (worksheet.Cells[row, 1].Value.ToString() == pNomeCliente)
-                            worksheet.Cells[row, 15].Value = xEhErro ? "ERRO" : DateTime.Now.ToString("ddMMyy");
+                        } 
+                        else if (xEhFinanceiro) 
+                        {
+                            if (worksheet.Cells[row, 1].Value.ToString() == pNomeCliente)
+                                worksheet.Cells[row, 15].Value = xEhErro ? "ERRO" : DateTime.Now.ToString("ddMMyy");
+                        }                    
                     }
                 }
 
